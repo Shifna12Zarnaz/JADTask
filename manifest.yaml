@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+   name: redis-pod
+spec:
+   containers:
+   - name: rediscontainer
+     image: saravak/redis:latest
+     ports:
+     - containerPort: 8000
