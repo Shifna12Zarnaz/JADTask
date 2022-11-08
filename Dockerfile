@@ -1,17 +1,22 @@
-FROM golang:1.16-alpine
-
+FROM golang:alpine as builder
+RUN apk update && apk add --no-cache git
 WORKDIR /app
-
-COPY go.mod ./
-COPY go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
+RUN go get github.com/go-sql-driver/mysql
+RUN go get github.com/gorilla/mux
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /app/main .
+EXPOSE 8000
+CMD ["./main"]
 
-COPY *.go ./
 
-RUN go build -o /docker-gs-ping
 
-EXPOSE 8080
 
-CMD [ "/docker-gs-ping" ]
+
 
 
